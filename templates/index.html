@@ -1,12 +1,35 @@
 {% extends "base.html" %}
 {% block title %}All Recipes{% endblock %}
 {% block content %}
-<h2>All Recipes</h2>
-<ul>
-  {% for recipe in recipes %}
-    <li><a href="{{ url_for('recipe', recipe_id=loop.index0) }}">{{ recipe.title }}</a></li>
-  {% else %}
-    <li>No recipes yet.</li>
-  {% endfor %}
-</ul>
+  <section class="recipes-section">
+    <h2 class="section-title">All Recipes</h2>
+
+    <div class="recipe-grid">
+      {% for recipe in recipes %}
+        <div class="recipe-card">
+          <a href="{{ url_for('recipe', recipe_id=loop.index0 + (page - 1) * 6) }}">
+            {{ recipe.title }}
+          </a>
+        </div>
+      {% else %}
+        <p class="no-recipes">No recipes yet. <a href="{{ url_for('add_recipe') }}">Add one now</a>!</p>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+      {% if page > 1 %}
+        <a class="page-link" href="{{ url_for('index', page=page-1) }}">&laquo; Previous</a>
+      {% endif %}
+      {% for p in range(1, total_pages+1) %}
+        {% if p == page %}
+          <span class="current-page">{{ p }}</span>
+        {% else %}
+          <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+        <a class="page-link" href="{{ url_for('index', page=page+1) }}">Next &raquo;</a>
+      {% endif %}
+    </div>
+  </section>
 {% endblock %}

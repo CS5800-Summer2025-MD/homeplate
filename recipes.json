@@ -1,17 +1,7 @@
 [
   {
-    "title": "Spaghetti Bolognese",
-    "ingredients": "Spaghetti, Ground beef, Tomato sauce, Onion, Garlic, Olive oil, Salt, Pepper",
-    "instructions": "Cook spaghetti. In another pan, cook beef with onion and garlic, add tomato sauce and season. Combine and serve."
-  },
-  {
-    "title": "Pancakes",
-    "ingredients": "Flour, Milk, Eggs, Sugar, Baking powder, Salt, Butter",
-    "instructions": "Mix dry ingredients. Add milk and eggs. Stir into batter. Cook on greased skillet until golden brown."
-  },
-  {
-    "title": "Chicken Stir-Fry",
-    "ingredients": "Chicken breast, Bell peppers, Broccoli, Soy sauce, Garlic, Ginger, Oil",
-    "instructions": "Cut chicken and veggies. Stir-fry garlic, ginger, chicken, then veggies. Add soy sauce. Cook until done."
+    "title": "Test Pancakes",
+    "ingredients": "Flour, Eggs, Milk",
+    "instructions": "Mix and cook"
   }
 ]
