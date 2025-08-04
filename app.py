@@ -3,6 +3,7 @@ import os
 import io
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from reportlab.pdfgen import canvas
+from io import BytesIO
 from reportlab.lib.pagesizes import letter
 
 app = Flask(__name__)
@@ -60,43 +61,48 @@ def delete_recipe(recipe_id):
     return redirect(url_for('index'))
 
 
-@app.route('/download-multiple', methods=['POST'])
+@app.route('/download_multiple', methods=['POST'])
 def download_multiple():
-    selected = request.form.getlist('selected')
-    if not selected:
+    selected_ids_str = request.form.get('selected_ids', '')
+    if not selected_ids_str:
         return "No recipes selected", 400
 
-    selected_ids = list(map(int, selected))
+    try:
+        selected_ids = list(map(int, selected_ids_str.split(',')))
+    except ValueError:
+        return "Invalid recipe IDs", 400
 
-    buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
-    text = c.beginText(40, 750)
-    text.setFont("Helvetica", 12)
+    selected = [recipes[i] for i in selected_ids if 0 <= i < len(recipes)]
+    if not selected:
+        return "No valid recipes found", 400
 
-    for idx in selected_ids:
-        if 0 <= idx < len(recipes):
-            recipe = recipes[idx]
-            text.textLine(f"Title: {recipe['title']}")
-            text.textLine("Ingredients:")
-            for line in recipe['ingredients'].split('\n'):
-                text.textLine(f" - {line}")
-            text.textLine("Instructions:")
-            for line in recipe['instructions'].split('\n'):
-                text.textLine(line)
-            text.textLine("-" * 50)
-            text.textLine("")
-            if text.getY() < 100:
-                c.drawText(text)
-                c.showPage()
-                text = c.beginText(40, 750)
-                text.setFont("Helvetica", 12)
-
-    c.drawText(text)
-    c.showPage()
-    c.save()
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+    y = 800
+    for recipe in selected:
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, y, recipe['title'])
+        y -= 20
+        p.setFont("Helvetica", 12)
+        p.drawString(100, y, "Ingredients:")
+        y -= 15
+        for line in recipe['ingredients'].split('\n'):
+            p.drawString(120, y, line)
+            y -= 15
+        p.drawString(100, y, "Instructions:")
+        y -= 15
+        for line in recipe['instructions'].split('\n'):
+            p.drawString(120, y, line)
+            y -= 15
+        y -= 30
+        if y < 100:
+            p.showPage()
+            y = 800
+    p.save()
     buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="recipes.pdf", mimetype='application/pdf')
 
-    return send_file(buffer, as_attachment=True, download_name="selected_recipes.pdf", mimetype='application/pdf')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

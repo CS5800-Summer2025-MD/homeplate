@@ -8,25 +8,25 @@
 </div>
 
   <!-- Recipe Cards -->
-  <div class="recipe-grid">
-    {% for recipe in recipes %}
-      {% set global_id = loop.index0 + (page - 1) * 6 %}
-      <div class="recipe-card"
-           onclick="toggleCardSelection(this, {{ global_id }})"
-           data-id="{{ global_id }}">
-        <span class="card-title">{{ recipe.title }}</span>
-        <span class="checkmark-overlay">✔</span>
-      </div>
-    {% endfor %}
-  </div>
+<div class="recipe-grid">
+  {% for recipe in recipes %}
+    {% set global_id = loop.index0 + (page - 1) * 6 %}
+    <div class="recipe-card"
+         onclick="toggleCardSelection(this, {{ global_id }})"
+         data-id="{{ global_id }}">
+      <span class="card-title">{{ recipe.title }}</span>
+      <span class="checkmark-overlay">✔</span>
+    </div>
+  {% endfor %}
+</div>
 
   <!-- Hidden Form for PDF download -->
-  <div style="text-align:center; margin-top: 1rem; display: none;" id="download-controls">
-    <form id="pdf-form" method="post" action="{{ url_for('download_multiple') }}">
-      <input type="hidden" name="selected_ids" id="selected-ids">
-      <button type="submit">Download Selected as PDF</button>
-    </form>
-  </div>
+<div style="text-align:center; margin-top: 1rem; display: none;" id="download-controls">
+  <form id="pdf-form" method="post" action="{{ url_for('download_multiple') }}">
+    <input type="hidden" name="selected_ids" id="selected-ids">
+    <button type="submit">Download Selected as PDF</button>
+  </form>
+</div>
 
   <!-- Pagination -->
   <div class="pagination">
@@ -63,12 +63,12 @@
       controls.style.display = 'none';
       toggleBtn.textContent = '📄 Download as PDF';
 
-      // Clear visual selection from UI
+      // Clear UI selection
       document.querySelectorAll('.recipe-card.selected').forEach(card => {
         card.classList.remove('selected');
       });
 
-      // Clear internal selection data
+      // Clear stored selection
       selectedIds.clear();
       localStorage.removeItem('selectedIds');
     }
@@ -81,13 +81,11 @@
     }
 
     card.classList.toggle('selected');
-
     if (selectedIds.has(String(recipeId))) {
       selectedIds.delete(String(recipeId));
     } else {
       selectedIds.add(String(recipeId));
     }
-
     localStorage.setItem('selectedIds', JSON.stringify(Array.from(selectedIds)));
   }
 
@@ -101,6 +99,7 @@
       }
     });
 
+    // If there are selected cards, re-enable PDF mode on load
     if (selectedIds.size > 0) {
       pdfMode = true;
       document.getElementById('download-controls').style.display = 'block';
@@ -111,11 +110,18 @@
   window.addEventListener('DOMContentLoaded', () => {
     updateCardSelections();
 
-    document.getElementById('pdf-form').addEventListener('submit', function (e) {
-      document.getElementById('selected-ids').value = Array.from(selectedIds).join(',');
-    });
+    const pdfForm = document.getElementById('pdf-form');
+    if (pdfForm) {
+      pdfForm.addEventListener('submit', function (e) {
+        if (selectedIds.size === 0) {
+          alert("Please select at least one recipe.");
+          e.preventDefault();
+          return;
+        }
+        document.getElementById('selected-ids').value = Array.from(selectedIds).join(',');
+      });
+    }
   });
 </script>
-
 
 {% endblock %}
