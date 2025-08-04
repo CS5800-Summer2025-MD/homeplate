@@ -1,6 +1,9 @@
 import json
 import os
-from flask import Flask, render_template, request, redirect, url_for
+import io
+from flask import Flask, render_template, request, redirect, url_for, send_file
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 app = Flask(__name__)
 
@@ -55,6 +58,45 @@ def delete_recipe(recipe_id):
         del recipes[recipe_id]
         save_recipes()
     return redirect(url_for('index'))
+
+
+@app.route('/download-multiple', methods=['POST'])
+def download_multiple():
+    selected = request.form.getlist('selected')
+    if not selected:
+        return "No recipes selected", 400
+
+    selected_ids = list(map(int, selected))
+
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    text = c.beginText(40, 750)
+    text.setFont("Helvetica", 12)
+
+    for idx in selected_ids:
+        if 0 <= idx < len(recipes):
+            recipe = recipes[idx]
+            text.textLine(f"Title: {recipe['title']}")
+            text.textLine("Ingredients:")
+            for line in recipe['ingredients'].split('\n'):
+                text.textLine(f" - {line}")
+            text.textLine("Instructions:")
+            for line in recipe['instructions'].split('\n'):
+                text.textLine(line)
+            text.textLine("-" * 50)
+            text.textLine("")
+            if text.getY() < 100:
+                c.drawText(text)
+                c.showPage()
+                text = c.beginText(40, 750)
+                text.setFont("Helvetica", 12)
+
+    c.drawText(text)
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True, download_name="selected_recipes.pdf", mimetype='application/pdf')
 
 if __name__ == '__main__':
     app.run(debug=True)

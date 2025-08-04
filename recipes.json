@@ -3,5 +3,35 @@
     "title": "Test Pancakes",
     "ingredients": "Flour, Eggs, Milk",
     "instructions": "Mix and cook"
+  },
+  {
+    "title": "Scrambled Eggs",
+    "ingredients": "Eggs, salt, sugar, butter",
+    "instructions": "Combine eggs, salt, and sugar together. Melt butter on pan. Wait for pan to warm and pour eggs in. Move eggs around until lightly cooked. Remove off the stove. Eggs will continue to cook off the pan. "
+  },
+  {
+    "title": "Loaded Tomato Soup",
+    "ingredients": "Tomato soup, cauliflower rice, spinach, sweet apple sausage, onion, garlic, salt, Bourskin cheese",
+    "instructions": "Brown onions and sausage in pot. Add some salt. Add tomato soup. Bring to simmer. Add rest of vegetables and Bourskin cheese. Boil lightly until vegetables are tender and cheese is fully dissolved. "
+  },
+  {
+    "title": "Sweet and Sour Soup",
+    "ingredients": "Salmon, pineapple, tomato, elephant ear stems, fish sauce",
+    "instructions": "Boil pot of water. Add cleaned salmon. When salmon almost cooked, add vegetables. Cook until tender. Add fish sauce to taste."
+  },
+  {
+    "title": "Milk and Cereal",
+    "ingredients": "milk, cereal",
+    "instructions": "Combine milk and cereal in bowl in desired portions."
+  },
+  {
+    "title": "Tuna Salad",
+    "ingredients": "Canned tuna, mayo, eggs, salt, pepper, spinach, celery, spinach, bell pepper, carrot, onion",
+    "instructions": "Combine all ingredients, which should be diced small. Add salt and pepper to taste. "
+  },
+  {
+    "title": "Orange Chicken",
+    "ingredients": "Trader Joes's orange chicken, oil",
+    "instructions": "Cook according to directions."
   }
 ]

@@ -1,35 +1,121 @@
 {% extends "base.html" %}
 {% block title %}All Recipes{% endblock %}
 {% block content %}
-  <section class="recipes-section">
-    <h2 class="section-title">All Recipes</h2>
+<section class="recipes-section">
+<div class="title-bar">
+  <h2 class="section-title">All Recipes</h2>
+  <button type="button" onclick="togglePdfMode()" id="toggle-btn">📄 Download as PDF</button>
+</div>
 
-    <div class="recipe-grid">
-      {% for recipe in recipes %}
-        <div class="recipe-card">
-          <a href="{{ url_for('recipe', recipe_id=loop.index0 + (page - 1) * 6) }}">
-            {{ recipe.title }}
-          </a>
-        </div>
+  <!-- Recipe Cards -->
+  <div class="recipe-grid">
+    {% for recipe in recipes %}
+      {% set global_id = loop.index0 + (page - 1) * 6 %}
+      <div class="recipe-card"
+           onclick="toggleCardSelection(this, {{ global_id }})"
+           data-id="{{ global_id }}">
+        <span class="card-title">{{ recipe.title }}</span>
+        <span class="checkmark-overlay">✔</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Hidden Form for PDF download -->
+  <div style="text-align:center; margin-top: 1rem; display: none;" id="download-controls">
+    <form id="pdf-form" method="post" action="{{ url_for('download_multiple') }}">
+      <input type="hidden" name="selected_ids" id="selected-ids">
+      <button type="submit">Download Selected as PDF</button>
+    </form>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    {% if page > 1 %}
+      <a class="page-link" href="{{ url_for('index', page=page-1) }}">&laquo; Previous</a>
+    {% endif %}
+    {% for p in range(1, total_pages+1) %}
+      {% if p == page %}
+        <span class="current-page">{{ p }}</span>
       {% else %}
-        <p class="no-recipes">No recipes yet. <a href="{{ url_for('add_recipe') }}">Add one now</a>!</p>
-      {% endfor %}
-    </div>
+        <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page < total_pages %}
+      <a class="page-link" href="{{ url_for('index', page=page+1) }}">Next &raquo;</a>
+    {% endif %}
+  </div>
+</section>
 
-    <div class="pagination">
-      {% if page > 1 %}
-        <a class="page-link" href="{{ url_for('index', page=page-1) }}">&laquo; Previous</a>
-      {% endif %}
-      {% for p in range(1, total_pages+1) %}
-        {% if p == page %}
-          <span class="current-page">{{ p }}</span>
-        {% else %}
-          <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
-        {% endif %}
-      {% endfor %}
-      {% if page < total_pages %}
-        <a class="page-link" href="{{ url_for('index', page=page+1) }}">Next &raquo;</a>
-      {% endif %}
-    </div>
-  </section>
+<!-- Toggle & Selection Script -->
+<script>
+  let pdfMode = false;
+  let selectedIds = new Set(JSON.parse(localStorage.getItem('selectedIds')) || []);
+
+  function togglePdfMode() {
+    pdfMode = !pdfMode;
+    const toggleBtn = document.getElementById('toggle-btn');
+    const controls = document.getElementById('download-controls');
+
+    if (pdfMode) {
+      controls.style.display = 'block';
+      toggleBtn.textContent = '❌ Exit PDF Download';
+    } else {
+      controls.style.display = 'none';
+      toggleBtn.textContent = '📄 Download as PDF';
+
+      // Clear visual selection from UI
+      document.querySelectorAll('.recipe-card.selected').forEach(card => {
+        card.classList.remove('selected');
+      });
+
+      // Clear internal selection data
+      selectedIds.clear();
+      localStorage.removeItem('selectedIds');
+    }
+  }
+
+  function toggleCardSelection(card, recipeId) {
+    if (!pdfMode) {
+      window.location = `/recipe/${recipeId}`;
+      return;
+    }
+
+    card.classList.toggle('selected');
+
+    if (selectedIds.has(String(recipeId))) {
+      selectedIds.delete(String(recipeId));
+    } else {
+      selectedIds.add(String(recipeId));
+    }
+
+    localStorage.setItem('selectedIds', JSON.stringify(Array.from(selectedIds)));
+  }
+
+  function updateCardSelections() {
+    document.querySelectorAll('.recipe-card').forEach(card => {
+      const id = card.getAttribute('data-id');
+      if (selectedIds.has(id)) {
+        card.classList.add('selected');
+      } else {
+        card.classList.remove('selected');
+      }
+    });
+
+    if (selectedIds.size > 0) {
+      pdfMode = true;
+      document.getElementById('download-controls').style.display = 'block';
+      document.getElementById('toggle-btn').textContent = '❌ Exit PDF Download';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    updateCardSelections();
+
+    document.getElementById('pdf-form').addEventListener('submit', function (e) {
+      document.getElementById('selected-ids').value = Array.from(selectedIds).join(',');
+    });
+  });
+</script>
+
+
 {% endblock %}
