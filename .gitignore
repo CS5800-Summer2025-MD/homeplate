@@ -1,0 +1,30 @@
+# --- Python/Flask Junk ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- PyCharm/IDE Files ---
+.idea/
+.vscode/
+*.swp
+*.bak
+
+# --- Database (Thesis Requirement) ---
+# We ignore the local sqlite file because your data will live in Azure SQL
+*.db
+*.sqlite3
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- Deployment Artifacts ---
+release.zip
