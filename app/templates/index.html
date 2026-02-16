@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="title-bar">
+    <h2 class="section-title">Recipe Collection</h2>
+    <button id="toggle-btn">Toggle View</button>
+</div>
+
+<div class="recipe-grid">
+    {% for recipe in recipes %}
+    <div class="recipe-card-wrapper">
+        <input type="checkbox" class="card-checkbox">
+        <div class="recipe-card">
+            <span class="card-title">{{ recipe.title }}</span>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 20px;">
+        <p>Your Azure SQL database is connected! Run the migration to see your recipes here.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    <span class="current-page">1</span>
+</div>
+{% endblock %}

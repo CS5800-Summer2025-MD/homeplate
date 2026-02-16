@@ -14,7 +14,7 @@ class Config:
         DB_SERVER = "homeplate-sql-srv.database.windows.net"
         DB_NAME = "homeplate-db"
         DB_USER = "dbadmin"
-        DB_PASS = "YourStrongPassword123!"  # Replace with your real password
+        DB_PASS = "Password1"  # Replace with your real password
 
         SQLALCHEMY_DATABASE_URI = (
             f"mssql+pyodbc://{DB_USER}:{DB_PASS}@{DB_SERVER}/{DB_NAME}?"
