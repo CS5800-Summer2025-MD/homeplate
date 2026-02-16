@@ -2,11 +2,20 @@ import os
 
 
 class Config:
-    # Flask uses this for session security
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-123'
+    # This key keeps your web sessions secure
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'thesis-development-key-2024'
 
-    # Points to Azure SQL Database for persistent storage
-    # We use a local fallback so the site stays 'up' during development
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///homeplate.db'
+    # --- Azure SQL Configuration ---
+    DB_SERVER = "homeplate-sql-srv.database.windows.net"
+    DB_NAME = "homeplate-db"
+    DB_USER = "dbadmin"
+    DB_PASS = "Password1"
 
+    # This tells SQLAlchemy to use the ODBC Driver (pre-installed on Azure B1)
+    SQLALCHEMY_DATABASE_URI = (
+        f"mssql+pyodbc://{DB_USER}:{DB_PASS}@{DB_SERVER}/{DB_NAME}?"
+        "driver=ODBC+Driver+17+for+SQL+Server"
+    )
+
+    # Disabling tracking saves memory and prevents overhead on your B1 tier
     SQLALCHEMY_TRACK_MODIFICATIONS = False
