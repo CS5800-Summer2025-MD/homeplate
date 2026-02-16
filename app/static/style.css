@@ -119,3 +119,83 @@ footer {
     cursor: pointer;
     margin: 0;
 }
+
+/* Glassmorphism Form Container */
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    color: #fff;
+}
+
+.form-container h2 {
+    font-family: 'Lobster', cursive;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+/* Styled Inputs */
+.form-container input,
+.form-container textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    font-family: inherit;
+    box-sizing: border-box; /* Prevents input from spilling out */
+}
+
+/* The Save Button */
+.btn-save {
+    width: 100%;
+    padding: 12px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-save:hover {
+    background-color: #357abd;
+}
+
+.card-header {
+    margin-bottom: 0.5rem;
+}
+
+.cuisine-tag {
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-footer {
+    text-align: right;
+}
+
+.delete-link {
+    color: #e74c3c;
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delete-link:hover {
+    background-color: #e74c3c;
+    color: white;
+}

@@ -1,27 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="title-bar">
-    <h2 class="section-title">Recipe Collection</h2>
-    <button id="toggle-btn">Toggle View</button>
-</div>
+<main>
+    <div class="title-bar">
+        <h2>Recipe Collection</h2>
+        <button onclick="toggleView()" id="toggleBtn">Toggle View</button>
+    </div>
 
-<div class="recipe-grid">
-    {% for recipe in recipes %}
-    <div class="recipe-card-wrapper">
-        <input type="checkbox" class="card-checkbox">
-        <div class="recipe-card">
-            <span class="card-title">{{ recipe.title }}</span>
+    <div class="recipe-grid" id="recipeGrid">
+        {% for recipe in recipes %}
+        <div class="recipe-card-wrapper">
+            <input type="checkbox" class="card-checkbox" id="check-{{ recipe.id }}">
+
+            <div class="recipe-card">
+                <div class="card-header">
+                    <h3>{{ recipe.title }}</h3>
+                </div>
+
+                <p class="cuisine-tag"><em>{{ recipe.cuisine }}</em></p>
+
+                <div class="card-footer">
+                    <a href="{{ url_for('main.delete_recipe', id=recipe.id) }}"
+                       class="delete-link"
+                       onclick="return confirm('Are you sure you want to delete this recipe from Azure SQL?')">
+                       Delete
+                    </a>
+                </div>
+            </div>
         </div>
+        {% else %}
+        <p>No recipes found. <a href="{{ url_for('main.add_recipe') }}">Add your first one!</a></p>
+        {% endfor %}
     </div>
-    {% else %}
-    <div style="text-align: center; padding: 20px;">
-        <p>Your Azure SQL database is connected! Run the migration to see your recipes here.</p>
-    </div>
-    {% endfor %}
-</div>
 
-<div class="pagination">
-    <span class="current-page">1</span>
-</div>
+    <div class="pagination">
+        <span class="current-page">1</span>
+    </div>
+</main>
+
+<script>
+    function toggleView() {
+        const grid = document.getElementById('recipeGrid');
+        grid.classList.toggle('list-view');
+    }
+</script>
 {% endblock %}
