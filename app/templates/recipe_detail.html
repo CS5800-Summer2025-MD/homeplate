@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="recipe-detail-container">
+    <div class="detail-header">
+        <a href="{{ url_for('main.index') }}" class="back-link">← Back to Collection</a>
+        <h1>{{ recipe.title }}</h1>
+        <span class="cuisine-badge">{{ recipe.cuisine }}</span>
+    </div>
+
+    <hr>
+
+    <div class="detail-content">
+        <section class="ingredients-section">
+            <h2>Ingredients</h2>
+            <p>{{ recipe.ingredients }}</p>
+        </section>
+
+        <section class="instructions-section">
+            <h2>Instructions</h2>
+            <p>{{ recipe.instructions }}</p>
+        </section>
+    </div>
+
+    <div class="detail-footer">
+        <small>Database ID: #{{ recipe.id }}</small>
+        <p class="tracking-notice"><em>Interactions for this recipe are being tracked for recommendations.</em></p>
+    </div>
+</main>
+
+<style>
+    .recipe-detail-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; }
+    .cuisine-badge { background: #ff6b6b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
+    .detail-content { display: grid; gap: 2rem; margin-top: 2rem; }
+    h2 { color: #4ecdc4; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+    .back-link { text-decoration: none; color: #4ecdc4; font-weight: bold; display: block; margin-bottom: 1rem; }
+</style>
+{% endblock %}

@@ -62,6 +62,8 @@ main {
 .recipe-card-wrapper {
     position: relative;
     margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .recipe-card {
@@ -73,6 +75,9 @@ main {
     padding: 1rem 1rem 1rem 2.5rem;
     cursor: pointer;
     transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .recipe-card:hover {
@@ -198,4 +203,35 @@ footer {
 .delete-link:hover {
     background-color: #e74c3c;
     color: white;
+}
+
+/* Recommendation Section Styling */
+.recommendations-container {
+    background: rgba(255, 255, 255, 0.05); /* Subtle glass effect */
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-title {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.ai-badge {
+    display: inline-block;
+    background: #4ecdc4; /* Modern teal */
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: 10px;
+    text-transform: uppercase;
+}
+
+.suggestion-card {
+    border: 2px solid #4ecdc4 !important; /* Highlights the AI choice */
 }

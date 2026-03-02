@@ -11,8 +11,10 @@ class Recipe(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Interaction(db.Model):
-    __tablename__ = 'interactions'
     id = db.Column(db.Integer, primary_key=True)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'))
-    interaction_type = db.Column(db.String(50)) # e.g., 'view', 'click'
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+    interaction_type = db.Column(db.String(50), default='view')
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    # Relationship to easily get recipe details from an interaction
+    recipe = db.relationship('Recipe', backref='interactions')

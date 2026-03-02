@@ -2,9 +2,29 @@
 
 {% block content %}
 <main>
+    {% if suggested %}
+    <section class="recommendations-area">
+        <h2 class="section-title">Recommended for You</h2>
+        <div class="recipe-grid">
+            {% for recipe in suggested %}
+            <div class="recipe-card suggestion-card">
+                <div class="card-header">
+                    <h3>
+                        <a href="{{ url_for('main.recipe_detail', id=recipe.id) }}">
+                            {{ recipe.title }}
+                        </a>
+                    </h3>
+                </div>
+                <p class="cuisine-tag"><em>{{ recipe.cuisine }}</em></p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <div class="title-bar">
-        <h2>Recipe Collection</h2>
-        <button onclick="toggleView()" id="toggleBtn">Toggle View</button>
+        <h2>Your Recipe Collection</h2>
+        <button onclick="toggleView()" id="toggleBtn" class="btn-secondary">Toggle View</button>
     </div>
 
     <div class="recipe-grid" id="recipeGrid">
@@ -14,7 +34,11 @@
 
             <div class="recipe-card">
                 <div class="card-header">
-                    <h3>{{ recipe.title }}</h3>
+                    <h3>
+                        <a href="{{ url_for('main.recipe_detail', id=recipe.id) }}" class="recipe-link">
+                            {{ recipe.title }}
+                        </a>
+                    </h3>
                 </div>
 
                 <p class="cuisine-tag"><em>{{ recipe.cuisine }}</em></p>
@@ -22,14 +46,16 @@
                 <div class="card-footer">
                     <a href="{{ url_for('main.delete_recipe', id=recipe.id) }}"
                        class="delete-link"
-                       onclick="return confirm('Are you sure you want to delete this recipe from Azure SQL?')">
+                       onclick="return confirm('Delete this recipe from Azure SQL?')">
                        Delete
                     </a>
                 </div>
             </div>
         </div>
         {% else %}
-        <p>No recipes found. <a href="{{ url_for('main.add_recipe') }}">Add your first one!</a></p>
+        <div class="empty-state">
+            <p>No recipes found in Azure SQL. <a href="{{ url_for('main.add_recipe') }}">Add your first one!</a></p>
+        </div>
         {% endfor %}
     </div>
 

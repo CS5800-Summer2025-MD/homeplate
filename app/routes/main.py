@@ -1,15 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app import db
-from app.models import Recipe
+from app.models import Recipe, Interaction
+from app.recommendation import get_recommendations
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    # Fetch all recipes from your new Azure SQL Database
     recipes = Recipe.query.all()
-    # Pass them to the HTML template
-    return render_template('index.html', recipes=recipes)
+    suggested = get_recommendations()
+    return render_template('index.html', recipes=recipes, suggested=suggested)
 
 @main_bp.route('/add', methods=['GET', 'POST'])
 def add_recipe():
@@ -32,3 +32,14 @@ def delete_recipe(id):
     db.session.delete(recipe_to_delete)
     db.session.commit() # This removes it from Azure!
     return redirect(url_for('main.index'))
+
+@main_bp.route('/recipe/<int:id>')
+def recipe_detail(id):
+    recipe = Recipe.query.get_or_404(id)
+
+    # Log the interaction!
+    new_interaction = Interaction(recipe_id=id, interaction_type='view')
+    db.session.add(new_interaction)
+    db.session.commit()
+
+    return render_template('recipe_detail.html', recipe=recipe)
