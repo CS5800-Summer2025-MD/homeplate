@@ -235,3 +235,20 @@ footer {
 .suggestion-card {
     border: 2px solid #4ecdc4 !important; /* Highlights the AI choice */
 }
+
+/* This forces the navigation to stay on top of the "gray" wall */
+header {
+    position: relative;
+    z-index: 9999 !important;
+}
+
+/* This allows clicks to "pass through" any invisible containers that might be stuck */
+main {
+    position: relative;
+    z-index: 1;
+}
+
+/* If you have a background overlay class, this disables it */
+.modal-backdrop, .overlay {
+    display: none !important;
+}
