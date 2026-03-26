@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
+from flask_login import LoginManager
 
 # Create the db object globally, but initialize it inside the factory
 db = SQLAlchemy()
+login_manager = LoginManager()
 
 # contains the instructions to get up the database, routes, and Blueprints
 # returns a Flask object
@@ -16,6 +18,9 @@ def create_app():
     # Initialize the database with the app, handshake
     # connect the db object created at top to this Flask app
     db.init_app(app)
+    login_manager.init_app(app)
+
+    login_manager.login_view = 'main.login'
 
     # Register Blueprints (Main and API)
     from .routes.main import main_bp
