@@ -6,6 +6,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Check if we are running a test
+    # set in test_app.py
     if os.environ.get('FLASK_ENV') == 'testing':
         # Use a simple, local SQLite database for GitHub tests
         SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'

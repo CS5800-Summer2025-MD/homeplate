@@ -5,23 +5,31 @@ from config import Config
 # Create the db object globally, but initialize it inside the factory
 db = SQLAlchemy()
 
+# contains the instructions to get up the database, routes, and Blueprints
+# returns a Flask object
 def create_app():
+    # create web server object
     app = Flask(__name__)
+    # grabs configuration from config.py
     app.config.from_object(Config)
 
-    # Initialize the database with the app
+    # Initialize the database with the app, handshake
+    # connect the db object created at top to this Flask app
     db.init_app(app)
 
     # Register Blueprints (Main and API)
     from .routes.main import main_bp
     from .routes.api import api_bp
+    # handles front end requests
     app.register_blueprint(main_bp)
+    # handles backend requests
     app.register_blueprint(api_bp)
 
     # Import models here so the database knows the tables exist
     with app.app_context():
+        # register models to the db object
         from . import models
-        # This line will actually create the tables in Azure if they don't exist
+        # Creates all the tables needed in Azure, handles SQL
         db.create_all()
 
     return app
