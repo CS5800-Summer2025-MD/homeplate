@@ -24,7 +24,9 @@
 
     <div class="title-bar">
         <h2>Our Recipe Collection</h2>
-        <button onclick="toggleView()" id="toggleBtn" class="btn-secondary">Toggle View</button>
+            <button onclick="downloadSelectedPDF()" id="downloadBtn" class="btn-primary">
+                Download Selected (PDF)
+            </button>
     </div>
 
     <div class="recipe-grid" id="recipeGrid">
@@ -60,14 +62,34 @@
     </div>
 
     <div class="pagination">
-        <span class="current-page">1</span>
-    </div>
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('main.index', page=pagination.prev_num) }}" class="page-link">« Previous</a>
+    {% else %}
+        <span class="page-link disabled">« Previous</span>
+    {% endif %}
+
+    <span class="current-page">{{ pagination.page }} of {{ pagination.pages }}</span>
+
+    {% if pagination.has_next %}
+        <a href="{{ url_for('main.index', page=pagination.next_num) }}" class="page-link">Next »</a>
+    {% else %}
+        <span class="page-link disabled">Next »</span>
+    {% endif %}
+</div>
 </main>
 
 <script>
-    function toggleView() {
-        const grid = document.getElementById('recipeGrid');
-        grid.classList.toggle('list-view');
+function downloadSelectedPDF() {
+    const checkedBoxes = document.querySelectorAll('.card-checkbox:checked');
+    const ids = Array.from(checkedBoxes).map(cb => cb.id.split('-')[1]);
+
+    if (ids.length === 0) {
+        alert("Please select at least one recipe to download!");
+        return;
     }
+
+    const url = `/download_pdf?ids=${ids.join(',')}`;
+    window.location.href = url;
+}
 </script>
 {% endblock %}

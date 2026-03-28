@@ -1,18 +1,31 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, send_file
 from app import db
 from app.models import Recipe, Interaction, User
-from app.recommendation import get_recommendations
-from flask_login import login_required
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.units import inch
+from io import BytesIO
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    recipes = Recipe.query.all()
-    suggested = get_recommendations()
-    return render_template('index.html', recipes=recipes, suggested=suggested)
+    # Get the current page from the URL (default to 1)
+    page = request.args.get('page', 1, type=int)
+
+    # Paginate the query: 6 recipes per page
+    pagination = Recipe.query.order_by(Recipe.id.desc()).paginate(page=page, per_page=6, error_out=False)
+    recipes = pagination.items
+
+    # Keep your 'suggested' logic the same
+    suggested = Recipe.query.order_by(func.newid()).limit(1).all()
+
+    return render_template('index.html', recipes=recipes, pagination=pagination, suggested=suggested)
 
 @main_bp.route('/add', methods=['GET', 'POST'])
 @login_required
@@ -89,3 +102,67 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+
+@main_bp.route('/download_pdf')
+def download_pdf():
+    # 1. Get IDs from the URL (from your JavaScript)
+    ids_string = request.args.get('ids', '')
+    if not ids_string:
+        return "No recipes selected", 400
+
+    recipe_ids = ids_string.split(',')
+    recipes = Recipe.query.filter(Recipe.id.in_(recipe_ids)).all()
+
+    # 2. Setup the "In-Memory" PDF file
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            rightMargin=72, leftMargin=72,
+                            topMargin=72, bottomMargin=18)
+
+    # 3. Define Styles
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    heading_style = styles['Heading2']
+    body_style = styles['BodyText']
+
+    # Create a custom style for the 'Cuisine' tag
+    cuisine_style = ParagraphStyle('CuisineStyle', parent=styles['Italic'], fontSize=10, textColor='#6f5f5c')
+
+    # 4. Build the Content
+    elements = []
+
+    # Main Header
+    elements.append(Paragraph("Your Recipe Collection", title_style))
+    elements.append(Spacer(1, 0.25 * inch))
+
+    for recipe in recipes:
+        # Recipe Title
+        elements.append(Paragraph(recipe.title, heading_style))
+        # Cuisine
+        elements.append(Paragraph(f"Cuisine: {recipe.cuisine}", cuisine_style))
+        elements.append(Spacer(1, 0.1 * inch))
+
+        # Ingredients Section
+        elements.append(Paragraph("<b>Ingredients:</b>", body_style))
+        # We replace newlines with <br/> for the PDF
+        ingredients_formatted = recipe.ingredients.replace('\n', '<br/>')
+        elements.append(Paragraph(ingredients_formatted, body_style))
+        elements.append(Spacer(1, 0.1 * inch))
+
+        # Instructions Section
+        elements.append(Paragraph("<b>Instructions:</b>", body_style))
+        instructions_formatted = recipe.instructions.replace('\n', '<br/>')
+        elements.append(Paragraph(instructions_formatted, body_style))
+
+        # Add a line or space between recipes
+        elements.append(Spacer(1, 0.4 * inch))
+        elements.append(Paragraph("<hr/>", body_style))  # Simple horizontal line
+
+    # 5. Generate PDF
+    doc.build(elements)
+
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True,
+                     download_name="my_recipes.pdf",
+                     mimetype='application/pdf')
