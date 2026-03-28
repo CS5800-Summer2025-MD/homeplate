@@ -15,15 +15,23 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    # Get the current page from the URL (default to 1)
     page = request.args.get('page', 1, type=int)
 
-    # Paginate the query: 6 recipes per page
-    pagination = Recipe.query.order_by(Recipe.id.desc()).paginate(page=page, per_page=6, error_out=False)
+    # 1. Main Pagination (Still needs order_by for Azure)
+    pagination = Recipe.query.order_by(Recipe.id.desc()).paginate(
+        page=page, per_page=6, error_out=False
+    )
     recipes = pagination.items
 
-    # Keep your 'suggested' logic the same
-    suggested = Recipe.query.order_by(func.newid()).limit(1).all()
+    # 2. Dynamic Randomization Logic
+    # Check if we are using SQLite (testing) or MSSQL (Azure)
+    engine_name = db.engine.name
+    if engine_name == 'sqlite':
+        random_func = func.random()
+    else:
+        random_func = func.newid()  # For Azure SQL / MSSQL
+
+    suggested = Recipe.query.order_by(random_func).limit(1).all()
 
     return render_template('index.html', recipes=recipes, pagination=pagination, suggested=suggested)
 
