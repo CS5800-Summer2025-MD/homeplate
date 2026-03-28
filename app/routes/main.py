@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, send_file, current_app
 from app import db
 from app.models import Recipe, Interaction, User
 from sqlalchemy import func
@@ -15,25 +15,46 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
+    # 1. Get the current page from the URL (default to 1)
     page = request.args.get('page', 1, type=int)
 
-    # 1. Main Pagination (Still needs order_by for Azure)
+    # 2. Standard Pagination: Show 6 recipes per page, newest first
     pagination = Recipe.query.order_by(Recipe.id.desc()).paginate(
         page=page, per_page=6, error_out=False
     )
     recipes = pagination.items
 
-    # 2. Dynamic Randomization Logic
-    # Check if we are using SQLite (testing) or MSSQL (Azure)
-    engine_name = db.engine.name
-    if engine_name == 'sqlite':
-        random_func = func.random()
+    # 3. Environment Check: Choose the correct Random function
+    # We check the config string directly to avoid 'NoneType' errors in tests
+    database_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+
+    if 'sqlite' in database_uri:
+        rand_func = func.random()  # Works for local SQLite tests
     else:
-        random_func = func.newid()  # For Azure SQL / MSSQL
+        rand_func = func.newid()  # Works for Azure SQL (Production)
 
-    suggested = Recipe.query.order_by(random_func).limit(1).all()
+    # 4. Smart Logic: Find the most frequent Cuisine in the Database
+    top_cuisine_query = db.session.query(
+        Recipe.cuisine,
+        func.count(Recipe.cuisine).label('qty')
+    ).group_by(Recipe.cuisine).order_by(func.count(Recipe.cuisine).desc()).first()
 
-    return render_template('index.html', recipes=recipes, pagination=pagination, suggested=suggested)
+    # 5. Get a Recommendation based on that top cuisine
+    if top_cuisine_query:
+        fav_cuisine = top_cuisine_query[0]
+        # Get one random recipe from the favorite cuisine category
+        suggested = Recipe.query.filter_by(cuisine=fav_cuisine).order_by(rand_func).limit(1).all()
+    else:
+        # Fallback if the database is empty or has no cuisines
+        suggested = []
+
+    # 6. Render the page with all the data
+    return render_template(
+        'index.html',
+        recipes=recipes,
+        pagination=pagination,
+        suggested=suggested
+    )
 
 @main_bp.route('/add', methods=['GET', 'POST'])
 @login_required
