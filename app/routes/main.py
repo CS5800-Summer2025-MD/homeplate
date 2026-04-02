@@ -11,7 +11,17 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.units import inch
 from io import BytesIO
 
+from groq import Groq
+from dotenv import load_dotenv
+import markdown
+import os
+
+load_dotenv()
+
+groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
 main_bp = Blueprint('main', __name__)
+
 
 @main_bp.route('/')
 def index():
@@ -195,3 +205,53 @@ def download_pdf():
     return send_file(buffer, as_attachment=True,
                      download_name="my_recipes.pdf",
                      mimetype='application/pdf')
+
+
+@main_bp.route('/ai-planner')
+def ai_planner():
+    return render_template('ai_planner.html')
+
+@main_bp.route('/generate-ai-plan', methods=['POST'])
+def generate_ai_plan():
+    user_request = request.form.get('user_prompt')
+
+    all_recipes = Recipe.query.all()
+
+    recipe_context = []
+    for r in all_recipes:
+        recipe_context.append(f"ID: {r.id} | Title: {r.title} | Cuisine: {r.cuisine} | Ingredients: {r.ingredients}")
+
+    context_str = "\n".join(recipe_context)
+
+    system_prompt = f"""
+    You are a professional meal planner. Use the following user collection to satisfy this request: "{user_request}"
+
+    Available Recipes:
+    {context_str}
+
+
+    STRICT FORMATTING RULES:
+        1. Organize the plan by Day (e.g., Day 1, Day 2).
+        2. DO NOT include Database IDs.
+        3. DO NOT use the phrase "(Manual Addition)".
+        4. For every recipe, use this exact structure with DOUBLE SPACING:
+           **[Meal Type]: [Recipe Name]**
+           Ingredients: [List ingredients]
+           Quick Directions:
+           [Summarized directions on this new line]
+        
+        5. Only use ONE empty line between different meals
+        6. IMPORTANT: You MUST put exactly one empty line between the Ingredients and the Quick Directions header.
+        7. After all meals for a specific Day are finished, add a horizontal line (---).
+        
+    """
+
+    completion = groq_client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": system_prompt}]
+    )
+
+    raw_markdown = completion.choices[0].message.content
+    html_plan = markdown.markdown(raw_markdown)
+
+    return render_template('meal_plan_view.html', plan=html_plan)

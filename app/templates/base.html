@@ -13,7 +13,7 @@
         <nav>
             <a href="/">Home</a>
             <a href="{{ url_for('main.add_recipe') }}">+ Add Recipe</a>
-
+            <a href="{{ url_for('main.ai_planner') }}" class="nav-special">AI Planner</a>
             {% if current_user.is_authenticated %}
                 <span>Welcome, {{ current_user.username }}</span>
                 <a href="{{ url_for('main.logout') }}">Logout</a>
@@ -30,7 +30,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 HomePlate++ Project | Thesis Prototype</p>
+        <p>&copy; 2026 HomePlate++ Project | Master's Project Prototype</p>
     </footer>
 </body>
 </html>

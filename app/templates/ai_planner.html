@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="ai-container">
+    <div class="ai-header">
+        <h1>✨ AI Smart Planner</h1>
+        <p>Tell the AI what kind of plan you need based on your Azure SQL collection.</p>
+    </div>
+
+    <form action="{{ url_for('main.generate_ai_plan') }}" method="POST" class="ai-form">
+        <textarea
+            name="user_prompt"
+            placeholder="Example: I want a 3-day healthy meal plan focused on my spicy recipes..."
+            required></textarea>
+
+        <button type="submit" class="btn-ai-large">Generate My Plan</button>
+    </form>
+</main>
+
+<style>
+    .ai-container { max-width: 700px; margin: 50px auto; text-align: center; }
+    textarea {
+        width: 100%;
+        height: 150px;
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        resize: none;
+    }
+    .btn-ai-large {
+        background-color: #7da0b1; /* Deep Navy */
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+</style>
+{% endblock %}
