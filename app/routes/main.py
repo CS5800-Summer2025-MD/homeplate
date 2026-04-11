@@ -1,10 +1,14 @@
+# tools to handle URLs, send users to new pages, and read data in
 from flask import Blueprint, render_template, request, redirect, url_for, send_file, current_app
+# do calcs on db data
 from app import db
 from app.models import Recipe, Interaction, User
 from sqlalchemy import func
+# hide password
 from werkzeug.security import generate_password_hash, check_password_hash
+# protect certain pages with @login_required
 from flask_login import login_user, logout_user, login_required
-
+# create the pdf
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -13,16 +17,18 @@ from io import BytesIO
 
 from groq import Groq
 from dotenv import load_dotenv
+# convert AI response to html
 import markdown
 import os
 
 load_dotenv()
-
+# connect to the llama 3 model
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-
+# the plug is named main
 main_bp = Blueprint('main', __name__)
 
-
+# connects the function index() to /
+# when someone lands on this page, execute this method
 @main_bp.route('/')
 def index():
     # 1. Get the current page from the URL (default to 1)
@@ -34,8 +40,7 @@ def index():
     )
     recipes = pagination.items
 
-    # 3. Environment Check: Choose the correct Random function
-    # We check the config string directly to avoid 'NoneType' errors in tests
+    # 3. Environment Check: Choose the correct Random function -- due to local testing, git tests, and prod env
     database_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
 
     if 'sqlite' in database_uri:
@@ -77,18 +82,20 @@ def add_recipe():
             ingredients=request.form.get('ingredients'),
             instructions=request.form.get('instructions')
         )
-        db.session.add(new_recipe)
+        db.session.add(new_recipe) # like git add, git commit
         db.session.commit() # This saves it to Azure!
         return redirect(url_for('main.index'))
     return render_template('add_recipe.html')
 
 @main_bp.route('/delete/<int:id>')
+@login_required
 def delete_recipe(id):
     recipe_to_delete = Recipe.query.get_or_404(id)
     db.session.delete(recipe_to_delete)
     db.session.commit() # This removes it from Azure!
     return redirect(url_for('main.index'))
 
+# id gets sent to the function
 @main_bp.route('/recipe/<int:id>')
 def recipe_detail(id):
     recipe = Recipe.query.get_or_404(id)
@@ -130,7 +137,7 @@ def login():
 
         # 2. Check if the password they typed matches the hashed one in the DB
         if user and check_password_hash(user.password_hash, request.form.get('password')):
-            # 3. THIS IS THE CRITICAL LINE
+            # 3. THIS IS THE CRITICAL LINE from flask-login
             login_user(user)
             return redirect(url_for('main.index'))
 
@@ -139,6 +146,7 @@ def login():
 
 @main_bp.route('/logout')
 def logout():
+    # from flask-login
     logout_user()
     return redirect(url_for('main.index'))
 
@@ -212,6 +220,7 @@ def ai_planner():
     return render_template('ai_planner.html')
 
 @main_bp.route('/generate-ai-plan', methods=['POST'])
+@login_required
 def generate_ai_plan():
     user_request = request.form.get('user_prompt')
 
