@@ -10,20 +10,28 @@
 <body>
     <header>
         <h1>HomePlate++</h1>
-        <nav>
-            <a href="/">Home</a>
-            <a href="{{ url_for('main.add_recipe') }}">+ Add Recipe</a>
-            <a href="{{ url_for('main.ai_planner') }}" class="nav-special">AI Planner</a>
-            {% if current_user.is_authenticated %}
-                <span>Welcome, {{ current_user.username }}</span>
-                <a href="{{ url_for('main.logout') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('main.login') }}">Login</a>
-                <a href="{{ url_for('main.register') }}">Register</a>
-            {% endif %}
+        <nav class="navbar-container">
+    <div class="nav-spacer"></div>
 
-            <a href="/api/recipes">API View</a>
-        </nav> </header>
+    <div class="nav-links-center">
+        <a href="{{ url_for('main.index') }}">Home</a>
+        <a href="{{ url_for('main.add_recipe') }}">+ Add Recipe</a>
+        <a href="{{ url_for('main.ai_planner') }}" class="nav-special">AI Planner</a>
+        <a href="/api/recipes">API View</a>
+        {% if current_user.is_authenticated %}
+            <span>Welcome, {{ current_user.username }}</span>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
+        {% endif %}
+    </div>
+
+    <div class="search-container">
+        <form action="{{ url_for('main.search') }}" method="GET" class="search-form">
+            <input type="search" name="q" class="search-input" placeholder="Search recipes..." value="{{ search_query or '' }}">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+</nav>
+    </header>
 
     <main>
         {% block content %}{% endblock %}

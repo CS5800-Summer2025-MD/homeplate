@@ -29,6 +29,19 @@
             </button>
     </div>
 
+{% if search_query %}
+<div class="search-feedback-container">
+    <div class="search-info">
+        <span class="search-label">Showing results for:</span>
+        <span class="search-term">"{{ search_query }}"</span>
+    </div>
+    <a href="{{ url_for('main.index') }}" class="search-exit-button">Clear Search</a>
+        <i class="fas fa-times"></i>
+    </a>
+</div>
+<hr class="search-divider">
+{% endif %}
+
     <div class="recipe-grid" id="recipeGrid">
         {% for recipe in recipes %}
         <div class="recipe-card-wrapper">
@@ -60,22 +73,23 @@
         </div>
         {% endfor %}
     </div>
+    {% if pagination %}
+        <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('main.index', page=pagination.prev_num) }}" class="page-link">« Previous</a>
+        {% else %}
+            <span class="page-link disabled">« Previous</span>
+        {% endif %}
 
-    <div class="pagination">
-    {% if pagination.has_prev %}
-        <a href="{{ url_for('main.index', page=pagination.prev_num) }}" class="page-link">« Previous</a>
-    {% else %}
-        <span class="page-link disabled">« Previous</span>
+        <span class="current-page">{{ pagination.page }} of {{ pagination.pages }}</span>
+
+        {% if pagination.has_next %}
+            <a href="{{ url_for('main.index', page=pagination.next_num) }}" class="page-link">Next »</a>
+        {% else %}
+            <span class="page-link disabled">Next »</span>
+        {% endif %}
+    </div>
     {% endif %}
-
-    <span class="current-page">{{ pagination.page }} of {{ pagination.pages }}</span>
-
-    {% if pagination.has_next %}
-        <a href="{{ url_for('main.index', page=pagination.next_num) }}" class="page-link">Next »</a>
-    {% else %}
-        <span class="page-link disabled">Next »</span>
-    {% endif %}
-</div>
 </main>
 
 <script>

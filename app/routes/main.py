@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 # convert AI response to html
 import markdown
 import os
+from sqlalchemy import or_
 
 load_dotenv()
 # connect to the llama 3 model
@@ -264,3 +265,23 @@ def generate_ai_plan():
     html_plan = markdown.markdown(raw_markdown)
 
     return render_template('meal_plan_view.html', plan=html_plan)
+
+
+
+@main_bp.route('/search')
+def search():
+    query = request.args.get('q', '')
+    if query:
+        # Search for the query string in title, ingredients, or cuisine
+        results = Recipe.query.filter(
+            or_(
+                Recipe.title.ilike(f'%{query}%'),
+                Recipe.ingredients.ilike(f'%{query}%'),
+                Recipe.cuisine.ilike(f'%{query}%')
+            )
+        ).all()
+    else:
+        results = []
+
+    return render_template('index.html', recipes=results, search_query=query)
+
