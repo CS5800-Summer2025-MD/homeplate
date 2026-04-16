@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 import markdown
 import os
 from sqlalchemy import or_
+from app.recommendation import get_recommendations
 
 load_dotenv()
 # connect to the llama 3 model
@@ -50,19 +51,7 @@ def index():
         rand_func = func.newid()  # Works for Azure SQL (Production)
 
     # 4. Smart Logic: Find the most frequent Cuisine in the Database
-    top_cuisine_query = db.session.query(
-        Recipe.cuisine,
-        func.count(Recipe.cuisine).label('qty')
-    ).group_by(Recipe.cuisine).order_by(func.count(Recipe.cuisine).desc()).first()
-
-    # 5. Get a Recommendation based on that top cuisine
-    if top_cuisine_query:
-        fav_cuisine = top_cuisine_query[0]
-        # Get one random recipe from the favorite cuisine category
-        suggested = Recipe.query.filter_by(cuisine=fav_cuisine).order_by(rand_func).limit(1).all()
-    else:
-        # Fallback if the database is empty or has no cuisines
-        suggested = []
+    suggested = get_recommendations()
 
     # 6. Render the page with all the data
     return render_template(
