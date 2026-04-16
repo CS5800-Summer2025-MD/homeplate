@@ -18,10 +18,13 @@
         <a href="{{ url_for('main.add_recipe') }}">+ Add Recipe</a>
         <a href="{{ url_for('main.ai_planner') }}" class="nav-special">AI Planner</a>
         <a href="/api/recipes">API View</a>
-        {% if current_user.is_authenticated %}
-            <span>Welcome, {{ current_user.username }}</span>
-            <a href="{{ url_for('main.logout') }}">Logout</a>
-        {% endif %}
+         {% if current_user.is_authenticated %}
+                <span>Welcome, {{ current_user.username }}</span>
+                <a href="{{ url_for('main.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('main.login') }}">Login</a>
+                <a href="{{ url_for('main.register') }}">Register</a>
+            {% endif %}
     </div>
 
     <div class="search-container">
